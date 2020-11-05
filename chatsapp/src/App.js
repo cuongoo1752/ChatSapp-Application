@@ -5,7 +5,7 @@ import Sidebar from "./Sidebar.js";
 function App() {
   return (
     //BEM naming convention
-    <div className="App">
+    <div className="app">
 
       <div className="app__body">
         <Sidebar />
