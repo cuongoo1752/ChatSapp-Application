@@ -8,12 +8,18 @@ import React, { useEffect, useState } from 'react'
 import './Chat.css'
 
 function Chat() {
-
-    const [seed, setSeed] = useState('');
+    const [input, setInput] = useState("")
+    const [seed, setSeed] = useState("")
 
     useEffect(() => {
-        setSeed(Math.round(Math.random() * 10000));
-    }, []);
+        setSeed(Math.round(Math.random() * 10000))
+    }, [])
+
+    const sendMessage = (e) => {
+        e.preventDefault();
+        console.log("typing:" + input)
+        setInput("");
+    }
 
     return (
         <div className='chat'>
@@ -56,10 +62,10 @@ function Chat() {
             <div className="chat__footer">
                 <InsertEmoticonIcon />
                 <form>
-                    <input type="text" placeholder="Type a message..."/>
-                    <button type="submit">Send message</button>
+                    <input value={input} onChange={(e) => { setInput(e.target.value) }} type="text" placeholder="Type a message..." />
+                    <button onClick={sendMessage} type="submit">Send message</button>
                 </form>
-                <MicIcon/>
+                <MicIcon />
             </div>
         </div>
     )
