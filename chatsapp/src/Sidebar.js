@@ -1,65 +1,74 @@
 import React, { useEffect, useState } from 'react'
-import './Sidebar.css';
-import { Avatar, IconButton } from "@material-ui/core";
-import DonutLargeIcon from "@material-ui/icons/DonutLarge";
-import ChatIcon from "@material-ui/icons/Chat"
-import MoreVertIcon from "@material-ui/icons/MoreVert"
-import SearchOutLined from "@material-ui/icons/SearchOutlined"
-import SidebarChat from "./SidebarChat.js";
-import db from "./firebase"
+import './Sidebar.css'
+import { Avatar, IconButton } from '@material-ui/core'
+import DonutLargeIcon from '@material-ui/icons/DonutLarge'
+import ChatIcon from '@material-ui/icons/Chat'
+import MoreVertIcon from '@material-ui/icons/MoreVert'
+import SearchOutLined from '@material-ui/icons/SearchOutlined'
+import SidebarChat from './SidebarChat.js'
+import db from './firebase'
+import { useStateValue } from './StateProvider'
 
 function Sidebar() {
-    const [rooms, setRoom] = useState([]);
+	const [rooms, setRooms] = useState([])
+	const [{ user }, dispatch] = useStateValue()
 
-    useEffect(() => {
-        db.collection("rooms").onSnapshot(snapshot => {
-            setRoom(snapshot.docs.map(doc => ({
-                id: doc.id,
-                data: doc.data()
-            })))
-        });
+	useEffect(() => {
+		const unsubscribe = db.collection('rooms').onSnapshot((snapshot) =>
+			setRooms(
+				snapshot.docs.map((doc) => ({
+					id: doc.id,
+					data: doc.data(),
+				}))
+			)
+		)
 
-        return () => {
-            //unsubcribe();
-        }
-    }, [rooms])
+		return () => {
+			unsubscribe()
+		}
+	}, [])
 
-    return (
-        <div className="sidebar">
-            <div className="sidebar__head">
-                <Avatar />
-                <div className="sidebar__headerRight">
-                    <IconButton>
-                        <DonutLargeIcon />
-                    </IconButton>
+	return (
+		<div className='sidebar'>
+			<div className='sidebar__head'>
+				<div className='sidebar__userInfo'>
+					<Avatar src={user?.photoURL} />
+					<h4>{user?.displayName}</h4>
+				</div>
+				<div className='sidebar__headerRight'>
+					<IconButton>
+						<DonutLargeIcon />
+					</IconButton>
 
-                    <IconButton>
-                        <ChatIcon />
-                    </IconButton>
+					<IconButton>
+						<ChatIcon />
+					</IconButton>
 
-                    <IconButton>
-                        <MoreVertIcon />
-                    </IconButton>
-                </div>
-            </div>
+					<IconButton>
+						<MoreVertIcon />
+					</IconButton>
+				</div>
+			</div>
 
-            <div className="sidebar__search">
-                <div className='sidebar__searchContainer'>
-                    <SearchOutLined />
-                    <input placeholder="Search of start new chat" type="text" />
-                </div>
+			<div className='sidebar__search'>
+				<div className='sidebar__searchContainer'>
+					<SearchOutLined />
+					<input placeholder='Search of start new chat' type='text' />
+				</div>
+			</div>
 
-            </div>
-
-            <div className="sidebar__chats">
-                <SidebarChat addNewChat />
-                {rooms.map(room => (
-                    <SidebarChat key={room.id} id={room.id} name={room.data.name} />
-                ))}
-
-            </div>
-        </div>
-    )
+			<div className='sidebar__chats'>
+				<SidebarChat addNewChat />
+				{rooms.map((room) => (
+					<SidebarChat
+						key={room.id}
+						id={room.id}
+						name={room.data.name}
+					/>
+				))}
+			</div>
+		</div>
+	)
 }
 
-export default Sidebar;
+export default Sidebar

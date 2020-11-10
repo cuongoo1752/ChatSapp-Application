@@ -31,13 +31,23 @@
 }
 
 .sidebar__searchContainer > .MuiSvgIcon-root {
-	color: gray;
+	color: lightgray;
 	padding: 10px;
 }
 .sidebar__head {
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
 	padding: 20px;
+}
+
+.sidebar__userInfo {
+	display: flex;
+	align-items: center;
+}
+
+.sidebar__userInfo > h4 {
+	padding: 10px;
 }
 
 .sidebar__headerRight {
@@ -50,6 +60,9 @@
 .sidebar__headerRight > .MuiSvgIcon-root {
 	margin-right: 2vw;
 	font-size: 24px !important;
+}
+.sidebar__headerRight > .MuiButtonBase-root:hover {
+	color: #72caaf;
 }
 
 .sidebar__chats {
@@ -67,5 +80,6 @@
 .sidebar__chats::-webkit-scrollbar-thumb {
 	border-radius: 5px;
 	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+	box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
 	background: rgba(0, 0, 0, 0.2);
 }
