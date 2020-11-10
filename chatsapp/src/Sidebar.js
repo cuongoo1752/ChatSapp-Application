@@ -17,7 +17,11 @@ function Sidebar() {
                 id: doc.id,
                 data: doc.data()
             })))
-        })
+        });
+
+        return () => {
+            //unsubcribe();
+        }
     }, [rooms])
 
     return (
