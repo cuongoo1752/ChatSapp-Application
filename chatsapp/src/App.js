@@ -2,31 +2,33 @@ import React from 'react'
 import './App.css'
 import Sidebar from './Sidebar'
 import Chat from './Chat'
-import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
+import { Route, BrowserRouter as Router, Switch, Redirect } from 'react-router-dom'
 import Login from './Login'
 import { useStateValue } from './StateProvider'
 
 function App() {
-	const [{ user }, ] = useStateValue()
+	const [{ user }] = useStateValue()
 
 	return (
 		<div className='app'>
-			{!user ? (
-				<Login />
-			) : (
-				<div className='app__body'>
-					<Router>
+			<Router>
+				{!user ? (
+					<Route>
+						<Redirect to='/' />
+						<Login />
+					</Route>
+				) : (
+					<div className='app__body'>
 						<Sidebar />
-
 						<Switch>
 							<Route path='/rooms/:roomId'>
 								<Chat />
 							</Route>
 							<Route path='/'></Route>
 						</Switch>
-					</Router>
-				</div>
-			)}
+					</div>
+				)}
+			</Router>
 		</div>
 	)
 }

@@ -19,7 +19,7 @@ function Chat() {
 	const { roomId } = useParams()
 	const [roomName, setRoomName] = useState('')
 	const [messages, setMessages] = useState([])
-	const [{ user }, ] = useStateValue()
+	const [{ user }] = useStateValue()
 
 	useEffect(() => {
 		if (roomId) {
@@ -30,9 +30,7 @@ function Chat() {
 				.doc(roomId)
 				.collection('messages')
 				.orderBy('timestamp', 'asc')
-				.onSnapshot((snapshot) =>
-					setMessages(snapshot.docs.map((doc) => doc.data()))
-				)
+				.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
 		}
 	}, [roomId])
 
@@ -49,31 +47,40 @@ function Chat() {
 			email: user.email,
 			timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 		})
+		db.collection('rooms').doc(roomId).set({
+			name: roomName,
+			timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+		})
 
 		setInput('')
 	}
+
+	const searchMessages = (e) => {
+		db.collection('rooms')
+			.doc(roomId)
+			.collection('messages')
+			.where('content', '>=', e.target.value)
+			.where('content', '<=', e.target.value + '\uf8ff')
+			.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
+	}
+
 	return (
 		<div className='chat'>
 			<div className='chat__header'>
-				<Avatar
-					src={`https://avatars.dicebear.com/api/human/${seed}.svg`}
-				/>
+				<Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`} />
 
 				<div className='chat__headerInfo'>
 					<h3>{roomName}</h3>
 					<p>
 						{messages.length !== 0
 							? 'Last conversation ' +
-							  new Date(
-									messages[
-										messages.length - 1
-									]?.timestamp?.toDate()
-							  ).toUTCString()
+							  new Date(messages[messages.length - 1]?.timestamp?.toDate()).toUTCString()
 							: ''}
 					</p>
 				</div>
 
 				<div className='chat__headerRight'>
+					<input onChange={searchMessages} type='text' placeholder='Search for messages' />
 					<IconButton>
 						<SearchOutline />
 					</IconButton>
@@ -87,17 +94,11 @@ function Chat() {
 			</div>
 			<div className='chat__body'>
 				{messages.map((message) => (
-					<p
-						className={`chat__message ${
-							message.email === user.email && 'chat__send'
-						}`}
-					>
+					<p className={`chat__message ${message.email === user.email && 'chat__send'}`}>
 						<span className='chat__name'>{message.name}</span>
 						{message.content}
 						<span className='chat__timestamp'>
-							{new Date(
-								message.timestamp?.toDate()
-							).toLocaleString()}
+							{new Date(message.timestamp?.toDate()).toLocaleString()}
 						</span>
 					</p>
 				))}

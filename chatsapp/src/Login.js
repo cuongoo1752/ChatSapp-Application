@@ -11,21 +11,17 @@ function Login() {
 	const signIn = () => {
 		auth.signInWithPopup(provider)
 			.then((result) => {
-				console.log(result)
 				dispatch({
 					type: actionTypes.SET_USER,
 					user: result.user,
 				})
 			})
-			.catch((error) => alert(error.message))
+			.catch((error) => console.log(error.message))
 	}
 	return (
 		<div className='login'>
 			<div className='login__container'>
-				<img
-					src='https://i.pinimg.com/originals/8a/26/2e/8a262eec1c2a9b26e522590b5a483c8d.png'
-					alt=''
-				/>
+				<img src='https://i.pinimg.com/originals/8a/26/2e/8a262eec1c2a9b26e522590b5a483c8d.png' alt='' />
 
 				<div className='login__text'>
 					<h1>Sign in to Chatsapp</h1>

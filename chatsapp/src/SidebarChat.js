@@ -3,6 +3,7 @@ import { Avatar } from '@material-ui/core'
 import './SidebarChat.css'
 import db from './firebase.js'
 import { Link } from 'react-router-dom'
+import firebase from 'firebase'
 
 function SidebarChat({ id, name, addNewChat }) {
 	const [seed, setSeed] = useState('')
@@ -14,9 +15,7 @@ function SidebarChat({ id, name, addNewChat }) {
 				.doc(id)
 				.collection('messages')
 				.orderBy('timestamp', 'desc')
-				.onSnapshot((snapshot) =>
-					setMessages(snapshot.docs.map((doc) => doc.data()))
-				)
+				.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
 		}
 	}, [id])
 
@@ -29,6 +28,7 @@ function SidebarChat({ id, name, addNewChat }) {
 		if (roomName) {
 			db.collection('rooms').add({
 				name: roomName,
+				timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 			})
 		}
 	}
@@ -36,12 +36,22 @@ function SidebarChat({ id, name, addNewChat }) {
 	return !addNewChat ? (
 		<Link to={`/rooms/${id}`}>
 			<div className='sidebarChat'>
-				<Avatar
-					src={`https://avatars.dicebear.com/api/human/${seed}.svg`}
-				/>
+				<Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`} />
 				<div className='sidebarChat__info'>
 					<h2>{name}</h2>
-					<p>{messages[0]?.content} </p>
+					<div className='sidebarChat__lastMessage'>
+						<p>
+							{messages[0]
+								? messages[0]?.content.substring(0, 20) +
+								  (messages[0]?.content.length >= 20 ? '...' : '')
+								: ''}
+						</p>
+						<p>
+							{messages[0]
+								? new Date(messages[0].timestamp?.toDate()).toLocaleTimeString().split(' ')[0]
+								: ''}
+						</p>
+					</div>
 				</div>
 			</div>
 		</Link>
