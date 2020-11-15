@@ -1,17 +1,18 @@
-import { Avatar, IconButton } from '@material-ui/core'
+import { Avatar, CircularProgress, IconButton } from '@material-ui/core'
 import AttachFile from '@material-ui/icons/AttachFile'
 import MoreVert from '@material-ui/icons/MoreVert'
 import SearchOutline from '@material-ui/icons/SearchOutlined'
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon'
 import MicIcon from '@material-ui/icons/Mic'
 import { useParams } from 'react-router-dom'
-import db from './firebase'
+import db, { storage } from './firebase'
 import firebase from 'firebase'
 import React, { useEffect, useState } from 'react'
 import './Chat.css'
 import { useStateValue } from './StateProvider'
 import ImageIcon from '@material-ui/icons/Image'
-import GifIcon from '@material-ui/icons/Gif'
+import SendIcon from '@material-ui/icons/Send'
+import ReactPlayer from 'react-player'
 
 function Chat() {
 	const [input, setInput] = useState('')
@@ -20,6 +21,7 @@ function Chat() {
 	const [roomName, setRoomName] = useState('')
 	const [messages, setMessages] = useState([])
 	const [{ user }] = useStateValue()
+	const [uploadProgress, setUploadProgress] = useState(0)
 
 	useEffect(() => {
 		if (roomId) {
@@ -61,7 +63,66 @@ function Chat() {
 			.collection('messages')
 			.where('content', '>=', e.target.value)
 			.where('content', '<=', e.target.value + '\uf8ff')
+			.orderBy('content')
+			.orderBy('timestamp', 'asc')
 			.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
+	}
+
+	const hiddenFileInput = React.useRef(null)
+	const handleClick = (e) => {
+		hiddenFileInput.current.click()
+	}
+	const handleChange = async (event) => {
+		const fileUploaded = event.target.files[0]
+		const newName = firebase.firestore.Timestamp.now()['seconds'] + fileUploaded.name
+		const fileRenamed = new File([fileUploaded], newName)
+		const fileUploadedType = fileUploaded.type.split('/')[0]
+		await storage
+			.ref(`${fileUploadedType}/${newName}`)
+			.put(fileRenamed)
+			.on(
+				'state_changed',
+				(snapshot) => {
+					const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+					setUploadProgress(progress)
+				},
+				function (error) {},
+				async function () {
+					setUploadProgress(0)
+					await storage
+						.ref(fileUploadedType)
+						.child(newName)
+						.getDownloadURL()
+						.then((url) => {
+							db.collection('rooms').doc(roomId).collection('messages').add({
+								content: url,
+								name: user.displayName,
+								email: user.email,
+								timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+							})
+						})
+						.then(() => {
+							db.collection('rooms')
+								.doc(roomId)
+								.collection('messages')
+								.orderBy('timestamp', 'asc')
+								.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
+						})
+				}
+			)
+		event.target.value = null
+	}
+
+	const renderMessage = (content) => {
+		if (/https:\/\/firebasestorage.googleapis.com\/v0\/b\/chatsapp-5b981.appspot.com\/o\/image/g.test(content)) {
+			return <img src={content} alt='chat' />
+		} else if (
+			/https:\/\/firebasestorage.googleapis.com\/v0\/b\/chatsapp-5b981.appspot.com\/o\/video/g.test(content)
+		) {
+			return <ReactPlayer url={content} playing={false} controls />
+		} else {
+			return <p>{content}</p>
+		}
 	}
 
 	return (
@@ -94,24 +155,37 @@ function Chat() {
 			</div>
 			<div className='chat__body'>
 				{messages.map((message) => (
-					<p className={`chat__message ${message.email === user.email && 'chat__send'}`}>
+					<div className={`chat__message ${message.email === user.email && 'chat__send'}`}>
 						<span className='chat__name'>{message.name}</span>
-						{message.content}
+						{renderMessage(message.content)}
 						<span className='chat__timestamp'>
 							{new Date(message.timestamp?.toDate()).toLocaleString()}
 						</span>
-					</p>
+					</div>
 				))}
 			</div>
 			<div className='chat__footer'>
 				<IconButton>
 					<InsertEmoticonIcon />
 				</IconButton>
+				{uploadProgress !== 0 ? (
+					<CircularProgress variant='static' value={uploadProgress} />
+				) : (
+					<IconButton onClick={handleClick}>
+						<input
+							ref={hiddenFileInput}
+							onChange={handleChange}
+							style={{ display: 'none' }}
+							accept='image/*,video/*'
+							id='icon-button-file'
+							type='file'
+						/>
+						<ImageIcon />
+					</IconButton>
+				)}
+
 				<IconButton>
-					<GifIcon />
-				</IconButton>
-				<IconButton>
-					<ImageIcon />
+					<MicIcon />
 				</IconButton>
 				<form>
 					<input
@@ -124,8 +198,8 @@ function Chat() {
 						Send a Message
 					</button>
 				</form>
-				<IconButton>
-					<MicIcon />
+				<IconButton onClick={sendMessage}>
+					<SendIcon />
 				</IconButton>
 			</div>
 		</div>

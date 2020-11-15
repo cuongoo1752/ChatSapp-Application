@@ -70,12 +70,35 @@
 .chat__message {
 	position: relative;
 	font-size: 16px;
-	padding: 10px;
+	padding: 10px 10px 15px 10px;
 	background-color: lightgray;
 	border-radius: 15px;
-	width: fit-content;
 	margin-bottom: 20px;
 	display: flex;
+	justify-content: space-between;
+	min-width: 100px;
+	max-width: 70%;
+	outline: none;
+	width: fit-content;
+}
+
+.chat__message > img {
+	max-width: 500px !important;
+	width: fit-content !important;
+	image-rendering: auto;
+}
+
+.chat__message > div {
+	max-width: 500px !important;
+	width: fit-content !important;
+	height: fit-content !important;
+	border-radius: 15px;
+	outline: none;
+}
+
+.chat__message > div > video {
+	outline: none;
+	border-radius: 15px;
 }
 
 .chat__name {
@@ -86,8 +109,10 @@
 }
 
 .chat__timestamp {
-	padding-left: 5px;
-	font-size: xx-small;
+	position: absolute;
+	right: 8px;
+	bottom: 1px;
+	font-size: 8px;
 	color: gray;
 	align-self: center;
 }
@@ -110,6 +135,13 @@
 	margin-right: 5px;
 	padding: 10px;
 	color: gray;
+}
+
+.chat__footer > .MuiCircularProgress-root {
+	margin-left: 5px;
+	margin-right: 5px;
+	padding: 10px;
+	color: #72caaf !important;
 }
 
 .chat__footer > .MuiButtonBase-root:hover {

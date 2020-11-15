@@ -3,7 +3,7 @@
 	padding: 20px;
 	cursor: pointer;
 	border-bottom: 1px solid #f6f6f6;
-	transition: 150ms ease-in-out;
+	transition: 200ms ease-in-out;
 }
 
 .sidebarChat:hover {

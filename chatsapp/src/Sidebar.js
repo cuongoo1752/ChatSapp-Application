@@ -8,6 +8,7 @@ import SearchOutLined from '@material-ui/icons/SearchOutlined'
 import SidebarChat from './SidebarChat.js'
 import db from './firebase'
 import { useStateValue } from './StateProvider'
+import firebase from 'firebase'
 
 function Sidebar() {
 	const [rooms, setRooms] = useState([])
@@ -32,7 +33,6 @@ function Sidebar() {
 	}, [])
 
 	const searchRoom = (e) => {
-		console.log(e.target.value)
 		db.collection('rooms')
 			.where('name', '>=', e.target.value)
 			.where('name', '<=', e.target.value + '\uf8ff')
@@ -46,6 +46,13 @@ function Sidebar() {
 			)
 	}
 
+	const signOut = (e) => {
+		firebase
+			.auth()
+			.signOut()
+			.then((window.location = '/'))
+	}
+
 	return (
 		<div className='sidebar'>
 			<div className='sidebar__head'>
@@ -54,7 +61,7 @@ function Sidebar() {
 					<h4>{user?.displayName}</h4>
 				</div>
 				<div className='sidebar__headerRight'>
-					<IconButton>
+					<IconButton onClick={signOut}>
 						<ExitToAppIcon />
 					</IconButton>
 

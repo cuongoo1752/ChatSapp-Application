@@ -31,9 +31,15 @@
 }
 
 .sidebar__searchContainer > .MuiSvgIcon-root {
+	transition: 200ms ease-in-out;
 	color: lightgray;
 	padding: 10px;
 }
+
+.sidebar__searchContainer:hover > .MuiSvgIcon-root {
+	color: #72caaf;
+}
+
 .sidebar__head {
 	display: flex;
 	justify-content: space-between;
