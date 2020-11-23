@@ -13,6 +13,7 @@ import { useStateValue } from './StateProvider'
 import ImageIcon from '@material-ui/icons/Image'
 import SendIcon from '@material-ui/icons/Send'
 import ReactPlayer from 'react-player'
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 
 function Chat() {
 	const [input, setInput] = useState('')
@@ -22,6 +23,8 @@ function Chat() {
 	const [messages, setMessages] = useState([])
 	const [{ user }] = useStateValue()
 	const [uploadProgress, setUploadProgress] = useState(0)
+	const { transcript, resetTranscript } = useSpeechRecognition()
+	const [listening, setListening] = useState(false)
 
 	useEffect(() => {
 		if (roomId) {
@@ -125,6 +128,21 @@ function Chat() {
 		}
 	}
 
+	const speechRecognize = async () => {
+		setListening(!listening)
+		if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
+			alert('Your browser does not support speech recognition')
+			return
+		}
+		if (listening) {
+			SpeechRecognition.startListening()
+		} else {
+			SpeechRecognition.stopListening()
+			setInput(transcript)
+			resetTranscript(transcript)
+		}
+	}
+
 	return (
 		<div className='chat'>
 			<div className='chat__header'>
@@ -184,8 +202,8 @@ function Chat() {
 					</IconButton>
 				)}
 
-				<IconButton>
-					<MicIcon />
+				<IconButton onClick={speechRecognize}>
+					{listening ? <MicIcon /> : <MicIcon style={{ color: '#72caaf' }} />}
 				</IconButton>
 				<form>
 					<input
