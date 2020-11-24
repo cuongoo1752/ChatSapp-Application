@@ -24,7 +24,7 @@ function Chat() {
 	const [{ user }] = useStateValue()
 	const [uploadProgress, setUploadProgress] = useState(0)
 	const { transcript, resetTranscript } = useSpeechRecognition()
-	const [listening, setListening] = useState(false)
+	const [listening, setListening] = useState(true)
 
 	useEffect(() => {
 		if (roomId) {
@@ -128,7 +128,7 @@ function Chat() {
 		}
 	}
 
-	const speechRecognize = async () => {
+	const speechRecognize = () => {
 		setListening(!listening)
 		if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
 			alert('Your browser does not support speech recognition')
