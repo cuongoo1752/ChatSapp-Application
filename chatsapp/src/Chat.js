@@ -89,7 +89,9 @@ function Chat() {
 		const fileUploaded = event.target.files[0]
 		const fileSize = (fileUploaded.size / 1024 / 1024).toFixed(1)
 		if (fileSize > 25) {
+			event.target.value = null
 			alert('File tải lên to quá bạn êi!! (っ °Д °;)っ')
+			return
 		}
 		const newName = firebase.firestore.Timestamp.now()['seconds'] + fileUploaded.name
 		const fileRenamed = new File([fileUploaded], newName)
