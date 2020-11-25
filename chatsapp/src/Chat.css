@@ -55,7 +55,7 @@
 }
 
 .chat__body audio {
-	border: none;
+	outline: none;
 }
 .chat__body audio::-webkit-media-controls-panel {
 	background-color: #97e0bb;
