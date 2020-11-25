@@ -59,8 +59,7 @@
 .sidebar__headerRight {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-	min-width: 10vw;
+	justify-content: flex-end;
 }
 
 .sidebar__headerRight > .MuiSvgIcon-root {
@@ -76,6 +75,7 @@
 	background-color: white;
 	overflow: scroll;
 	overflow-x: hidden;
+	border-bottom-left-radius: 15px;
 }
 
 .sidebar__chats::-webkit-scrollbar {

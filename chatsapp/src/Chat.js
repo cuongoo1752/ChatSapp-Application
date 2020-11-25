@@ -1,6 +1,4 @@
 import { Avatar, CircularProgress, IconButton } from '@material-ui/core'
-import AttachFile from '@material-ui/icons/AttachFile'
-import MoreVert from '@material-ui/icons/MoreVert'
 import SearchOutline from '@material-ui/icons/SearchOutlined'
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon'
 import MicIcon from '@material-ui/icons/Mic'
@@ -14,6 +12,7 @@ import ImageIcon from '@material-ui/icons/Image'
 import SendIcon from '@material-ui/icons/Send'
 import ReactPlayer from 'react-player'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
+import ReactAudioPlayer from 'react-audio-player'
 
 function Chat() {
 	const [input, setInput] = useState('')
@@ -34,7 +33,8 @@ function Chat() {
 			db.collection('rooms')
 				.doc(roomId)
 				.collection('messages')
-				.orderBy('timestamp', 'asc')
+				.orderBy('timestamp', 'desc')
+				.limit(100)
 				.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
 		}
 	}, [roomId])
@@ -45,7 +45,6 @@ function Chat() {
 
 	const sendMessage = (e) => {
 		e.preventDefault()
-
 		db.collection('rooms').doc(roomId).collection('messages').add({
 			content: input,
 			name: user.displayName,
@@ -61,14 +60,25 @@ function Chat() {
 	}
 
 	const searchMessages = (e) => {
-		db.collection('rooms')
-			.doc(roomId)
-			.collection('messages')
-			.where('content', '>=', e.target.value)
-			.where('content', '<=', e.target.value + '\uf8ff')
-			.orderBy('content')
-			.orderBy('timestamp', 'asc')
-			.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
+		const search = e.target.value
+		if (search === '') {
+			db.collection('rooms')
+				.doc(roomId)
+				.collection('messages')
+				.orderBy('timestamp', 'desc')
+				.limit(100)
+				.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
+		} else {
+			db.collection('rooms')
+				.doc(roomId)
+				.collection('messages')
+				.where('content', '>=', e.target.value)
+				.where('content', '<=', e.target.value + '\uf8ff')
+				.orderBy('content')
+				.orderBy('timestamp', 'desc')
+				.limit(100)
+				.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
+		}
 	}
 
 	const hiddenFileInput = React.useRef(null)
@@ -77,6 +87,10 @@ function Chat() {
 	}
 	const handleChange = async (event) => {
 		const fileUploaded = event.target.files[0]
+		const fileSize = (fileUploaded.size / 1024 / 1024).toFixed(1)
+		if (fileSize > 25) {
+			alert('File tải lên to quá bạn êi!! (っ °Д °;)っ')
+		}
 		const newName = firebase.firestore.Timestamp.now()['seconds'] + fileUploaded.name
 		const fileRenamed = new File([fileUploaded], newName)
 		const fileUploadedType = fileUploaded.type.split('/')[0]
@@ -108,7 +122,8 @@ function Chat() {
 							db.collection('rooms')
 								.doc(roomId)
 								.collection('messages')
-								.orderBy('timestamp', 'asc')
+								.orderBy('timestamp', 'desc')
+								.limit(100)
 								.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
 						})
 				}
@@ -123,6 +138,10 @@ function Chat() {
 			/https:\/\/firebasestorage.googleapis.com\/v0\/b\/chatsapp-5b981.appspot.com\/o\/video/g.test(content)
 		) {
 			return <ReactPlayer url={content} playing={false} controls />
+		} else if (
+			/https:\/\/firebasestorage.googleapis.com\/v0\/b\/chatsapp-5b981.appspot.com\/o\/audio/g.test(content)
+		) {
+			return <ReactAudioPlayer src={content} controls />
 		} else {
 			return <p>{content}</p>
 		}
@@ -131,7 +150,7 @@ function Chat() {
 	const speechRecognize = () => {
 		setListening(!listening)
 		if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
-			alert('Your browser does not support speech recognition')
+			alert('Trình duyệt không hỗ trợ cái này đôu (￣﹏￣；)')
 			return
 		}
 		if (listening) {
@@ -163,12 +182,6 @@ function Chat() {
 					<IconButton>
 						<SearchOutline />
 					</IconButton>
-					<IconButton>
-						<AttachFile />
-					</IconButton>
-					<IconButton>
-						<MoreVert />
-					</IconButton>
 				</div>
 			</div>
 			<div className='chat__body'>
@@ -194,7 +207,7 @@ function Chat() {
 							ref={hiddenFileInput}
 							onChange={handleChange}
 							style={{ display: 'none' }}
-							accept='image/*,video/*'
+							accept='image/*,video/*,audio/*'
 							id='icon-button-file'
 							type='file'
 						/>

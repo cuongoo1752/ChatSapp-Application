@@ -48,11 +48,17 @@
 .chat__body {
 	flex: 1;
 	background-image: url('https://www.filepicker.io/api/file/u5frNNlBQDQbBX0nh9Mg');
-	/* background-repeat: repeat; */
 	background-position: center;
 	padding: 30px;
 	overflow: scroll;
 	overflow-x: hidden;
+}
+
+.chat__body audio {
+	border: none;
+}
+.chat__body audio::-webkit-media-controls-panel {
+	background-color: #97e0bb;
 }
 
 .chat__body::-webkit-scrollbar {

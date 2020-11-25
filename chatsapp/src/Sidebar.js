@@ -64,14 +64,6 @@ function Sidebar() {
 					<IconButton onClick={signOut}>
 						<ExitToAppIcon />
 					</IconButton>
-
-					<IconButton>
-						<ChatIcon />
-					</IconButton>
-
-					<IconButton>
-						<MoreVertIcon />
-					</IconButton>
 				</div>
 			</div>
 
