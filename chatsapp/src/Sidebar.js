@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react'
 import './Sidebar.css'
 import { Avatar, IconButton } from '@material-ui/core'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
-import ChatIcon from '@material-ui/icons/Chat'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
 import SearchOutLined from '@material-ui/icons/SearchOutlined'
 import SidebarChat from './SidebarChat.js'
 import db from './firebase'
@@ -33,17 +31,31 @@ function Sidebar() {
 	}, [])
 
 	const searchRoom = (e) => {
-		db.collection('rooms')
-			.where('name', '>=', e.target.value)
-			.where('name', '<=', e.target.value + '\uf8ff')
-			.onSnapshot((snapshot) =>
-				setRooms(
-					snapshot.docs.map((doc) => ({
-						id: doc.id,
-						data: doc.data(),
-					}))
+		const search = e.target.value
+		if (search === '') {
+			db.collection('rooms')
+				.orderBy('timestamp', 'desc')
+				.onSnapshot((snapshot) =>
+					setRooms(
+						snapshot.docs.map((doc) => ({
+							id: doc.id,
+							data: doc.data(),
+						}))
+					)
 				)
-			)
+		} else {
+			db.collection('rooms')
+				.where('name', '>=', e.target.value)
+				.where('name', '<=', e.target.value + '\uf8ff')
+				.onSnapshot((snapshot) =>
+					setRooms(
+						snapshot.docs.map((doc) => ({
+							id: doc.id,
+							data: doc.data(),
+						}))
+					)
+				)
+		}
 	}
 
 	const signOut = (e) => {
