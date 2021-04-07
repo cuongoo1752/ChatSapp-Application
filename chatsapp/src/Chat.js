@@ -11,7 +11,9 @@ import { useStateValue } from './StateProvider'
 import ImageIcon from '@material-ui/icons/Image'
 import SendIcon from '@material-ui/icons/Send'
 import ReactPlayer from 'react-player'
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
+import SpeechRecognition, {
+	useSpeechRecognition,
+} from 'react-speech-recognition'
 import ReactAudioPlayer from 'react-audio-player'
 
 function Chat() {
@@ -35,7 +37,9 @@ function Chat() {
 				.collection('messages')
 				.orderBy('timestamp', 'desc')
 				.limit(100)
-				.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
+				.onSnapshot((snapshot) =>
+					setMessages(snapshot.docs.map((doc) => doc.data()))
+				)
 		}
 	}, [roomId])
 
@@ -45,18 +49,20 @@ function Chat() {
 
 	const sendMessage = (e) => {
 		e.preventDefault()
-		db.collection('rooms').doc(roomId).collection('messages').add({
-			content: input,
-			name: user.displayName,
-			email: user.email,
-			timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-		})
-		db.collection('rooms').doc(roomId).set({
-			name: roomName,
-			timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-		})
+		if (input.trim() !== '') {
+			db.collection('rooms').doc(roomId).collection('messages').add({
+				content: input,
+				name: user.displayName,
+				email: user.email,
+				timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+			})
+			db.collection('rooms').doc(roomId).set({
+				name: roomName,
+				timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+			})
 
-		setInput('')
+			setInput('')
+		}
 	}
 
 	const searchMessages = (e) => {
@@ -67,7 +73,9 @@ function Chat() {
 				.collection('messages')
 				.orderBy('timestamp', 'desc')
 				.limit(100)
-				.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
+				.onSnapshot((snapshot) =>
+					setMessages(snapshot.docs.map((doc) => doc.data()))
+				)
 		} else {
 			db.collection('rooms')
 				.doc(roomId)
@@ -77,7 +85,9 @@ function Chat() {
 				.orderBy('content')
 				.orderBy('timestamp', 'desc')
 				.limit(100)
-				.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
+				.onSnapshot((snapshot) =>
+					setMessages(snapshot.docs.map((doc) => doc.data()))
+				)
 		}
 	}
 
@@ -93,7 +103,8 @@ function Chat() {
 			alert('File tải lên to quá bạn êi!! (っ °Д °;)っ')
 			return
 		}
-		const newName = firebase.firestore.Timestamp.now()['seconds'] + fileUploaded.name
+		const newName =
+			firebase.firestore.Timestamp.now()['seconds'] + fileUploaded.name
 		const fileRenamed = new File([fileUploaded], newName)
 		const fileUploadedType = fileUploaded.type.split('/')[0]
 		await storage
@@ -102,7 +113,9 @@ function Chat() {
 			.on(
 				'state_changed',
 				(snapshot) => {
-					const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+					const progress = Math.round(
+						(snapshot.bytesTransferred / snapshot.totalBytes) * 100
+					)
 					setUploadProgress(progress)
 				},
 				function (error) {},
@@ -113,12 +126,15 @@ function Chat() {
 						.child(newName)
 						.getDownloadURL()
 						.then((url) => {
-							db.collection('rooms').doc(roomId).collection('messages').add({
-								content: url,
-								name: user.displayName,
-								email: user.email,
-								timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-							})
+							db.collection('rooms')
+								.doc(roomId)
+								.collection('messages')
+								.add({
+									content: url,
+									name: user.displayName,
+									email: user.email,
+									timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+								})
 						})
 						.then(() => {
 							db.collection('rooms')
@@ -126,7 +142,11 @@ function Chat() {
 								.collection('messages')
 								.orderBy('timestamp', 'desc')
 								.limit(100)
-								.onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())))
+								.onSnapshot((snapshot) =>
+									setMessages(
+										snapshot.docs.map((doc) => doc.data())
+									)
+								)
 						})
 				}
 			)
@@ -134,14 +154,22 @@ function Chat() {
 	}
 
 	const renderMessage = (content) => {
-		if (/https:\/\/firebasestorage.googleapis.com\/v0\/b\/chatsapp-5b981.appspot.com\/o\/image/g.test(content)) {
+		if (
+			/https:\/\/firebasestorage.googleapis.com\/v0\/b\/chatsapp-5b981.appspot.com\/o\/image/g.test(
+				content
+			)
+		) {
 			return <img src={content} alt='chat' />
 		} else if (
-			/https:\/\/firebasestorage.googleapis.com\/v0\/b\/chatsapp-5b981.appspot.com\/o\/video/g.test(content)
+			/https:\/\/firebasestorage.googleapis.com\/v0\/b\/chatsapp-5b981.appspot.com\/o\/video/g.test(
+				content
+			)
 		) {
 			return <ReactPlayer url={content} playing={false} controls />
 		} else if (
-			/https:\/\/firebasestorage.googleapis.com\/v0\/b\/chatsapp-5b981.appspot.com\/o\/audio/g.test(content)
+			/https:\/\/firebasestorage.googleapis.com\/v0\/b\/chatsapp-5b981.appspot.com\/o\/audio/g.test(
+				content
+			)
 		) {
 			return <ReactAudioPlayer src={content} controls />
 		} else {
@@ -167,20 +195,30 @@ function Chat() {
 	return (
 		<div className='chat'>
 			<div className='chat__header'>
-				<Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`} />
+				<Avatar
+					src={`https://avatars.dicebear.com/api/human/${seed}.svg`}
+				/>
 
 				<div className='chat__headerInfo'>
 					<h3>{roomName}</h3>
 					<p>
 						{messages.length !== 0
 							? 'Last conversation ' +
-							  new Date(messages[messages.length - 1]?.timestamp?.toDate()).toUTCString()
+							  new Date(
+									messages[
+										messages.length - 1
+									]?.timestamp?.toDate()
+							  ).toUTCString()
 							: ''}
 					</p>
 				</div>
 
 				<div className='chat__headerRight'>
-					<input onChange={searchMessages} type='text' placeholder='Search for messages' />
+					<input
+						onChange={searchMessages}
+						type='text'
+						placeholder='Search for messages'
+					/>
 					<IconButton>
 						<SearchOutline />
 					</IconButton>
@@ -188,11 +226,16 @@ function Chat() {
 			</div>
 			<div className='chat__body'>
 				{messages.map((message) => (
-					<div className={`chat__message ${message.email === user.email && 'chat__send'}`}>
+					<div
+						className={`chat__message ${
+							message.email === user.email && 'chat__send'
+						}`}>
 						<span className='chat__name'>{message.name}</span>
 						{renderMessage(message.content)}
 						<span className='chat__timestamp'>
-							{new Date(message.timestamp?.toDate()).toLocaleString()}
+							{new Date(
+								message.timestamp?.toDate()
+							).toLocaleString()}
 						</span>
 					</div>
 				))}
@@ -218,7 +261,11 @@ function Chat() {
 				)}
 
 				<IconButton onClick={speechRecognize}>
-					{listening ? <MicIcon /> : <MicIcon style={{ color: '#72caaf' }} />}
+					{listening ? (
+						<MicIcon />
+					) : (
+						<MicIcon style={{ color: '#72caaf' }} />
+					)}
 				</IconButton>
 				<form>
 					<input

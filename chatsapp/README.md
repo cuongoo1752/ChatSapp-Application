@@ -1,3 +1,10 @@
+# Bài tập lớn nhóm 9: Web chat
+
+#### To run this app, go to chatsapp folder and run: 
+```npm i; if ($LASTEXITCODE -eq 0) { npm start }```
+
+Deployed version: [ChatsApp](https://chatsapp-5b981.web.app)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
